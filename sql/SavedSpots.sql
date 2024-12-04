@@ -3,6 +3,6 @@ CREATE TABLE SavedSpots (
     user_id INT NOT NULL,
     spot_id INT NOT NULL,
     date DATE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(id),
-    FOREIGN KEY (spot_id) REFERENCES StudySpot(id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (spot_id) REFERENCES AllStudySpots(spot_id)
 );

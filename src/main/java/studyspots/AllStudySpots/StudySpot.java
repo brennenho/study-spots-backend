@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "studyspots")
+@Table(name = "AllStudySpots")
 public class StudySpot {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,14 +22,17 @@ public class StudySpot {
 	@Column(name = "address")
 	private String address;
 	
+	@Column(name = "image")
+	private String image;
+	
 	@Column(name = "latitude")
 	private float latitude;
 	
 	@Column(name = "longitude")
 	private float longitude;
 	
-	@Column(name = "category")
-	private String category;
+	@Column(name = "rating")
+	private float rating;
 	
 	public int getSpotId() {
 		return this.spotId;
@@ -51,8 +54,12 @@ public class StudySpot {
 		return latitude;
 	}
 	
-	public String getCategory() {
-		return category;
+	public String getImage() {
+		return image;
+	}
+	
+	public float getRating() {
+		return rating;
 	}
 	
 	public void setName(String name) {
@@ -75,8 +82,12 @@ public class StudySpot {
 		this.latitude = latitude;
 	}
 	
-	public void setCategory(String category) {
-		this.category = category;
+	public void setImage(String image) {
+		this.image = image;
+	}
+	
+	public void setRating(float rating) {
+		this.rating = rating;
 	}
 
 }

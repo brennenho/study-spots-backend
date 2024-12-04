@@ -4,5 +4,5 @@ CREATE TABLE trending_scores (
 	total_visits INT NOT NULL,
 	trending_metrics double NOT NULL,
 	average_rating double NOT NULL,
-	FOREIGN KEY (spot_id) REFERENCES StudySpots(spot_id)
+	FOREIGN KEY (spot_id) REFERENCES AllStudySpots(spot_id)
 );
