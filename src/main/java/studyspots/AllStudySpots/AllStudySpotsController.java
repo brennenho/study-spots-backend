@@ -1,6 +1,7 @@
 package studyspots.AllStudySpots;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,22 +24,34 @@ public class AllStudySpotsController {
 	private AllStudySpotsRepository allStudySpotsRepository;
 	
 	@PostMapping("/add")
-	public @ResponseBody void addStudySpot(@RequestParam int spot_id, @RequestParam String name, @RequestParam String address, @RequestParam String category) {
+	public @ResponseBody String addStudySpot(@RequestParam String name, @RequestParam String address, @RequestParam String image,
+			@RequestParam float latitude, @RequestParam float longitude, @RequestParam float rating) {
+		if(this.allStudySpotsRepository.existsByName(name)) {
+			return "Study spot already exists.";
+		}
 		StudySpot studySpot = new StudySpot();
-		studySpot.setSpotId(spot_id);
 		studySpot.setAddress(address);
 		studySpot.setName(name);
+		studySpot.setImage(image);
+		studySpot.setLatitude(latitude);
+		studySpot.setLongitude(longitude);
+		studySpot.setRating(rating);
+		this.allStudySpotsRepository.save(studySpot);
+		return "Study spot added";
+		
+		
 	}
 	
 	@GetMapping("/get")
-	public @ResponseBody void getStudySpotByName(@RequestParam String name) {
-		
+	public @ResponseBody List<StudySpot> getStudySpotByName(@RequestParam String name) {
+		return this.allStudySpotsRepository.findByName(name);
 	}
 	
-	@DeleteMapping("/remove")
-	public @ResponseBody void removeStudySpot() {
-		
+	@GetMapping("/getall")
+	public @ResponseBody List<StudySpot> getAll() {
+		return this.allStudySpotsRepository.findAll();
 	}
+
 	
 	//@PutMapping("/update/")
 	
