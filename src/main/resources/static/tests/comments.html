@@ -39,7 +39,18 @@
           <label for="description" class="form-label">Description</label>
           <textarea class="form-control" id="description" rows="3">
 This is a test comment</textarea
-          >
+          ></div
+        ><div class="mb-3">
+          <label for="rating" class="form-label">Rating (1-10)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="rating"
+            value="5"
+            min="1"
+            max="10"
+            required
+          />
         </div>
         <button onclick="addComment()" class="btn btn-primary w-100"
           >Add Comment</button
@@ -86,7 +97,18 @@ This is an updated comment</textarea
         </div>
         <button onclick="editComment()" class="btn btn-warning w-100"
           >Edit Comment</button
-        >
+        > </div
+      ><div class="mb-3">
+        <label for="editRating" class="form-label">Rating (1-10)</label>
+        <input
+          type="number"
+          class="form-control"
+          id="editRating"
+          value="5"
+          min="1"
+          max="10"
+          required
+        />
       </div>
     </div>
 
@@ -142,11 +164,19 @@ This is an updated comment</textarea
 
     <script>
       async function addComment() {
+        const rating = parseInt(document.getElementById("rating").value);
+        if (rating < 1 || rating > 10) {
+          document.getElementById("responseText").textContent =
+            "Error: Rating must be between 1 and 10";
+          return;
+        }
+
         const comment = {
           userId: document.getElementById("userId").value,
           postId: document.getElementById("postId").value,
           title: document.getElementById("title").value,
           description: document.getElementById("description").value,
+          rating: rating,
         };
 
         try {
@@ -170,12 +200,20 @@ This is an updated comment</textarea
       }
 
       async function editComment() {
+        const rating = parseInt(document.getElementById("editRating").value);
+        if (rating < 1 || rating > 10) {
+          document.getElementById("responseText").textContent =
+            "Error: Rating must be between 1 and 10";
+          return;
+        }
+
         const comment = {
           userId: document.getElementById("editUserId").value,
           postId: document.getElementById("editPostId").value,
           commentId: document.getElementById("editCommentId").value,
           title: document.getElementById("editTitle").value,
           description: document.getElementById("editDescription").value,
+          rating: rating,
         };
 
         try {
