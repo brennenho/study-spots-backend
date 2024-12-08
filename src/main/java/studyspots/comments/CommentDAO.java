@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -206,6 +208,32 @@ public class CommentDAO {
 			}
 		} catch (SQLException e) {
 			throw new RuntimeException("Error finding comment: " + e.getMessage(), e);
+		}
+	}
+
+	public List<Comment> getCommentsBySpot(Long spotId) {
+		try (Connection conn = this.dataSource.getConnection()) {
+			String sql = "SELECT * FROM Comments WHERE post_id = ? ORDER BY timestamp DESC";
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setLong(1, spotId);
+
+				List<Comment> comments = new ArrayList<>();
+				try (ResultSet rs = pstmt.executeQuery()) {
+					while (rs.next()) {
+						Comment comment = new Comment();
+						comment.setId(rs.getInt("id"));
+						comment.setUserId(rs.getLong("user_id"));
+						comment.setPostId(rs.getLong("post_id"));
+						comment.setTitle(rs.getString("title"));
+						comment.setDescription(rs.getString("description"));
+						comment.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+						comments.add(comment);
+					}
+				}
+				return comments;
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("Error fetching comments: " + e.getMessage(), e);
 		}
 	}
 }
