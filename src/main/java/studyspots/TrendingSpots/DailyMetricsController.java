@@ -10,12 +10,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import studyspots.AllStudySpots.AllStudySpotsRepository;
+import studyspots.AllStudySpots.StudySpot;
+import studyspots.comments.CommentDAO;
+
 @Controller
 @RequestMapping(path="/DailyMetrics")
 public class DailyMetricsController {
 
 	@Autowired
 	private DailyMetricsRepository dailyMetricsRepository;
+	
+	@Autowired
+	private AllStudySpotsRepository allStudySpotsRepository;
+	
+	@Autowired
+    private TrendingMetricsController trendingMetricsController;
+	
+	@Autowired
+	private CommentDAO commentDao;
+	
+	@PostMapping(path="/processDailyMetrics")
+	public @ResponseBody void processAll() {
+		List<StudySpot> allSpots = allStudySpotsRepository.findAll();
+		for (int i = 0; i < allSpots.size(); i++) {
+			int spotId = allSpots.get(i).getSpotId();
+			float rating = allSpots.get(i).getRating();
+			int visitCount = commentDao.getCommentsBySpot((long) spotId).size();
+			
+
+			addNewDailyMetric(spotId, visitCount, rating);
+		}
+	}
 
 	@PostMapping(path="/add")
 	public @ResponseBody String addNewDailyMetric (@RequestParam int spot_id, @RequestParam int visit_count, @RequestParam double rating) {
