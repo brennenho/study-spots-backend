@@ -42,9 +42,19 @@ public class CommentDAO {
 		}
 	}
 
+	private boolean commentExists(Connection conn, Long commentId) throws SQLException {
+		String sql = "SELECT 1 FROM Comments WHERE id = ?";
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setLong(1, commentId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				return rs.next();
+			}
+		}
+	}
+
 	public Comment addComment(CommentRequest request) {
 		try (Connection conn = this.dataSource.getConnection()) {
-			// First check if both spot_id and user_id exist
+			// Validate post_id and user_id
 			if (!this.spotExists(conn, request.getPostId())) {
 				throw new RuntimeException("Study spot with ID " + request.getPostId() + " does not exist");
 			}
@@ -86,71 +96,116 @@ public class CommentDAO {
 		}
 	}
 
-	public Comment findComment(Long userId, Long postId, Long commentId) {
-		String sql = "SELECT * FROM Comments WHERE user_id = ? AND post_id = ? AND id = ?";
-
-		try (Connection conn = this.dataSource.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setLong(1, userId);
-			pstmt.setLong(2, postId);
-			pstmt.setLong(3, commentId);
-
-			try (ResultSet rs = pstmt.executeQuery()) {
-				if (rs.next()) {
-					Comment comment = new Comment();
-					comment.setId(rs.getInt("id"));
-					comment.setUserId(rs.getLong("user_id"));
-					comment.setPostId(rs.getLong("post_id"));
-					comment.setTitle(rs.getString("title"));
-					comment.setDescription(rs.getString("description"));
-					comment.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
-					return comment;
-				}
-				return null;
-			}
-		} catch (SQLException e) {
-			throw new RuntimeException("Error finding comment", e);
-		}
-	}
-
 	public Comment updateComment(CommentRequest request) {
-		String sql = "UPDATE Comments SET title = ?, description = ?, timestamp = ? WHERE user_id = ? AND post_id = ? AND id = ?";
-
-		try (Connection conn = this.dataSource.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setString(1, request.getTitle());
-			pstmt.setString(2, request.getDescription());
-			pstmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-			pstmt.setLong(4, request.getUserId());
-			pstmt.setLong(5, request.getPostId());
-			pstmt.setLong(6, request.getCommentId());
-
-			int affectedRows = pstmt.executeUpdate();
-			if (affectedRows > 0) {
-				return this.findComment(request.getUserId(), request.getPostId(), request.getCommentId());
+		try (Connection conn = this.dataSource.getConnection()) {
+			// First validate all IDs
+			if (!this.commentExists(conn, request.getCommentId())) {
+				throw new RuntimeException("Comment with ID " + request.getCommentId() + " does not exist");
 			}
-			return null;
+			if (!this.spotExists(conn, request.getPostId())) {
+				throw new RuntimeException("Study spot with ID " + request.getPostId() + " does not exist");
+			}
+			if (!this.userExists(conn, request.getUserId())) {
+				throw new RuntimeException("User with ID " + request.getUserId() + " does not exist");
+			}
+
+			// Verify the comment belongs to this user and post
+			String verifySql = "SELECT 1 FROM Comments WHERE id = ? AND user_id = ? AND post_id = ?";
+			try (PreparedStatement verifyStmt = conn.prepareStatement(verifySql)) {
+				verifyStmt.setLong(1, request.getCommentId());
+				verifyStmt.setLong(2, request.getUserId());
+				verifyStmt.setLong(3, request.getPostId());
+				try (ResultSet rs = verifyStmt.executeQuery()) {
+					if (!rs.next()) {
+						throw new RuntimeException("Comment does not belong to this user and post combination");
+					}
+				}
+			}
+
+			String sql = "UPDATE Comments SET title = ?, description = ?, timestamp = ? WHERE id = ? AND user_id = ? AND post_id = ?";
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setString(1, request.getTitle());
+				pstmt.setString(2, request.getDescription());
+				pstmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+				pstmt.setLong(4, request.getCommentId());
+				pstmt.setLong(5, request.getUserId());
+				pstmt.setLong(6, request.getPostId());
+
+				int affectedRows = pstmt.executeUpdate();
+				if (affectedRows > 0) {
+					return this.findComment(request.getUserId(), request.getPostId(), request.getCommentId());
+				}
+				throw new RuntimeException("Update failed, no rows affected");
+			}
 		} catch (SQLException e) {
-			throw new RuntimeException("Error updating comment", e);
+			throw new RuntimeException("Error updating comment: " + e.getMessage(), e);
 		}
 	}
 
 	public boolean deleteComment(Long userId, Long postId, Long commentId) {
-		String sql = "DELETE FROM Comments WHERE user_id = ? AND post_id = ? AND id = ?";
+		try (Connection conn = this.dataSource.getConnection()) {
+			// First validate all IDs
+			if (!this.commentExists(conn, commentId)) {
+				throw new RuntimeException("Comment with ID " + commentId + " does not exist");
+			}
+			if (!this.spotExists(conn, postId)) {
+				throw new RuntimeException("Study spot with ID " + postId + " does not exist");
+			}
+			if (!this.userExists(conn, userId)) {
+				throw new RuntimeException("User with ID " + userId + " does not exist");
+			}
 
-		try (Connection conn = this.dataSource.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			// Verify the comment belongs to this user and post
+			String verifySql = "SELECT 1 FROM Comments WHERE id = ? AND user_id = ? AND post_id = ?";
+			try (PreparedStatement verifyStmt = conn.prepareStatement(verifySql)) {
+				verifyStmt.setLong(1, commentId);
+				verifyStmt.setLong(2, userId);
+				verifyStmt.setLong(3, postId);
+				try (ResultSet rs = verifyStmt.executeQuery()) {
+					if (!rs.next()) {
+						throw new RuntimeException("Comment does not belong to this user and post combination");
+					}
+				}
+			}
 
-			pstmt.setLong(1, userId);
-			pstmt.setLong(2, postId);
-			pstmt.setLong(3, commentId);
+			String sql = "DELETE FROM Comments WHERE id = ? AND user_id = ? AND post_id = ?";
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setLong(1, commentId);
+				pstmt.setLong(2, userId);
+				pstmt.setLong(3, postId);
 
-			int affectedRows = pstmt.executeUpdate();
-			return affectedRows > 0;
+				int affectedRows = pstmt.executeUpdate();
+				return affectedRows > 0;
+			}
 		} catch (SQLException e) {
-			throw new RuntimeException("Error deleting comment", e);
+			throw new RuntimeException("Error deleting comment: " + e.getMessage(), e);
+		}
+	}
+
+	public Comment findComment(Long userId, Long postId, Long commentId) {
+		try (Connection conn = this.dataSource.getConnection()) {
+			String sql = "SELECT * FROM Comments WHERE user_id = ? AND post_id = ? AND id = ?";
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+				pstmt.setLong(1, userId);
+				pstmt.setLong(2, postId);
+				pstmt.setLong(3, commentId);
+
+				try (ResultSet rs = pstmt.executeQuery()) {
+					if (rs.next()) {
+						Comment comment = new Comment();
+						comment.setId(rs.getInt("id"));
+						comment.setUserId(rs.getLong("user_id"));
+						comment.setPostId(rs.getLong("post_id"));
+						comment.setTitle(rs.getString("title"));
+						comment.setDescription(rs.getString("description"));
+						comment.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+						return comment;
+					}
+					return null;
+				}
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("Error finding comment: " + e.getMessage(), e);
 		}
 	}
 }

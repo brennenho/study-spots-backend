@@ -30,11 +30,13 @@ public class CommentController {
 
 	@PutMapping("/edit")
 	public ResponseEntity<?> editComment(@RequestBody CommentRequest request) {
-		Comment updatedComment = this.commentDAO.updateComment(request);
-		if (updatedComment == null) {
-			return ResponseEntity.notFound().build();
+		try {
+			Comment updatedComment = this.commentDAO.updateComment(request);
+			return ResponseEntity.ok(updatedComment);
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest()
+					.body(new ErrorResponse(e.getMessage()));
 		}
-		return ResponseEntity.ok(updatedComment);
 	}
 
 	@DeleteMapping("/delete")
@@ -42,11 +44,16 @@ public class CommentController {
 			@RequestParam Long userId,
 			@RequestParam Long postId,
 			@RequestParam Long commentId) {
-		boolean deleted = this.commentDAO.deleteComment(userId, postId, commentId);
-		if (!deleted) {
+		try {
+			boolean deleted = this.commentDAO.deleteComment(userId, postId, commentId);
+			if (deleted) {
+				return ResponseEntity.ok().build();
+			}
 			return ResponseEntity.notFound().build();
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest()
+					.body(new ErrorResponse(e.getMessage()));
 		}
-		return ResponseEntity.ok().build();
 	}
 }
 
