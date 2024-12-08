@@ -55,10 +55,8 @@ public class TrendingMetricsController {
 
 		//Yes I used bubble sort
 		for (int i = 0; i < trendingMetricsList.size()-1; i++) {
-			boolean swap;
-			for (int j = 0; j < trendingMetricsList.size() - i - 1; j++) {
-				swap = false;
-				
+			boolean swap = false;
+			for (int j = 0; j < trendingMetricsList.size() - i - 1; j++) {				
 				if (trendingMetricsList.get(j).getTrendingMetrics() < trendingMetricsList.get(j + 1).getTrendingMetrics()) {
 					
 					TrendingMetrics temp = trendingMetricsList.get(j);
@@ -67,9 +65,9 @@ public class TrendingMetricsController {
 					
 					swap = true;
 				}
-				if (!swap) {
-					break;
-				}
+			}
+			if (!swap) {
+				break;
 			}
 		}
 

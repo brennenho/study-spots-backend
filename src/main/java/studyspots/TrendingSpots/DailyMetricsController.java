@@ -64,7 +64,7 @@ public class DailyMetricsController {
 			return "Added";
 		}	
 		else {
-			dailyMetricsRepository.delete(dailyMetricsRepository.findFirstBySpotIdOrderByTimestampAsc(spot_id));
+			dailyMetricsRepository.delete(dailyMetricsRepository.findFirstBySpotIdOrderByDateAsc(spot_id));
 			DailyMetrics metrics = new DailyMetrics();
 			metrics.setDate(LocalDate.now());
 			metrics.setRating(rating);

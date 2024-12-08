@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface DailyMetricsRepository extends CrudRepository<DailyMetrics, Integer> {
 	List<DailyMetrics> findBySpotId(int spotId);
-	DailyMetrics findFirstBySpotIdOrderByTimestampAsc(int spotId);
+	DailyMetrics findFirstBySpotIdOrderByDateAsc(int spotId);
 	
 	@Query("SELECT DISTINCT spotId FROM DailyMetrics")
 	List<Integer> findDistinctSpotId();
