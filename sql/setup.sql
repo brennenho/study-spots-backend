@@ -10,7 +10,7 @@ CREATE TABLE AllStudySpots(
 	latitude decimal(10, 8),
 	longitude decimal(11, 8),
 	hours varchar(255),
---     tags varchar(255),
+	tags varchar(255),
 	PRIMARY KEY (spot_id)
 );
 
