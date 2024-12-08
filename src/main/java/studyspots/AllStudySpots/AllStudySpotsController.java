@@ -46,6 +46,11 @@ public class AllStudySpotsController {
 	public @ResponseBody List<StudySpot> getStudySpotByName(@RequestParam String name) {
 		return this.allStudySpotsRepository.findByName(name);
 	}
+	
+	@GetMapping("/getbyid")
+	public @ResponseBody StudySpot getStudySpotById(@RequestParam int id) {
+		return this.allStudySpotsRepository.findById(id);
+	}
 
 	@GetMapping("/getall")
 	public @ResponseBody List<StudySpot> getAll() {
