@@ -1,7 +1,5 @@
 package studyspots.comments;
 
-import java.time.LocalDateTime;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,39 +13,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/comments")
 public class CommentController {
+
 	@Autowired
-	private CommentRepository commentRepository;
+	private CommentDAO commentDAO;
 
 	@PostMapping("/add")
-	public ResponseEntity<Comment> addComment(@RequestBody CommentRequest request) {
-		Comment comment = new Comment();
-		comment.setUserId(request.getUserId());
-		comment.setPostId(request.getPostId());
-		comment.setTitle(request.getTitle());
-		comment.setDescription(request.getDescription());
-		comment.setTimestamp(LocalDateTime.now());
-
-		Comment savedComment = this.commentRepository.save(comment);
-		return ResponseEntity.ok(savedComment);
+	public ResponseEntity<?> addComment(@RequestBody CommentRequest request) {
+		try {
+			Comment savedComment = this.commentDAO.addComment(request);
+			return ResponseEntity.ok(savedComment);
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest()
+					.body(new ErrorResponse(e.getMessage()));
+		}
 	}
 
 	@PutMapping("/edit")
 	public ResponseEntity<?> editComment(@RequestBody CommentRequest request) {
-		Comment existingComment = this.commentRepository.findByUserIdAndPostIdAndId(
-				request.getUserId(),
-				request.getPostId(),
-				request.getCommentId()
-				);
-
-		if (existingComment == null) {
+		Comment updatedComment = this.commentDAO.updateComment(request);
+		if (updatedComment == null) {
 			return ResponseEntity.notFound().build();
 		}
-
-		existingComment.setTitle(request.getTitle());
-		existingComment.setDescription(request.getDescription());
-		existingComment.setTimestamp(LocalDateTime.now());
-
-		Comment updatedComment = this.commentRepository.save(existingComment);
 		return ResponseEntity.ok(updatedComment);
 	}
 
@@ -56,12 +42,26 @@ public class CommentController {
 			@RequestParam Long userId,
 			@RequestParam Long postId,
 			@RequestParam Long commentId) {
-		Comment comment = this.commentRepository.findByUserIdAndPostIdAndId(userId, postId, commentId);
-		if (comment == null) {
+		boolean deleted = this.commentDAO.deleteComment(userId, postId, commentId);
+		if (!deleted) {
 			return ResponseEntity.notFound().build();
 		}
-
-		this.commentRepository.delete(comment);
 		return ResponseEntity.ok().build();
+	}
+}
+
+class ErrorResponse {
+	private String message;
+
+	public ErrorResponse(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return this.message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 }

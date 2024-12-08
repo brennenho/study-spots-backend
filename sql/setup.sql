@@ -71,3 +71,16 @@ CREATE TABLE trending_scores (
 	average_rating double NOT NULL,
 	FOREIGN KEY (spot_id) REFERENCES AllStudySpots(spot_id)
 );
+
+
+CREATE TABLE Comments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    post_id INT NOT NULL,
+    title VARCHAR(255),
+    description VARCHAR(5000),
+    timestamp DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (post_id) REFERENCES AllStudySpots(spot_id),
+    INDEX idx_user_post_comment (user_id, post_id, id)
+);
