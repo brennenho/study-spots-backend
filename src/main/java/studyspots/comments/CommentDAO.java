@@ -64,7 +64,7 @@ public class CommentDAO {
 				throw new RuntimeException("User with ID " + request.getUserId() + " does not exist");
 			}
 			// Validate rating
-			if ((request.getRating() == null) || (request.getRating() < 1) || (request.getRating() > 10)) {
+			if ((request.getRating() < 1) || (request.getRating() > 10)) {
 				throw new RuntimeException("Rating must be between 1 and 10");
 			}
 
@@ -76,7 +76,7 @@ public class CommentDAO {
 				pstmt.setString(3, request.getTitle());
 				pstmt.setString(4, request.getDescription());
 				pstmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-				pstmt.setInt(6, request.getRating());
+				pstmt.setInt(6, request.getRating());  // Make sure rating is being set
 
 				int affectedRows = pstmt.executeUpdate();
 
@@ -117,7 +117,7 @@ public class CommentDAO {
 				throw new RuntimeException("User with ID " + request.getUserId() + " does not exist");
 			}
 			// Validate rating
-			if ((request.getRating() == null) || (request.getRating() < 1) || (request.getRating() > 10)) {
+			if ((request.getRating() < 1) || (request.getRating() > 10)) {
 				throw new RuntimeException("Rating must be between 1 and 10");
 			}
 
@@ -212,6 +212,7 @@ public class CommentDAO {
 						comment.setTitle(rs.getString("title"));
 						comment.setDescription(rs.getString("description"));
 						comment.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+						comment.setRating(rs.getInt("rating"));
 						return comment;
 					}
 					return null;
@@ -221,8 +222,6 @@ public class CommentDAO {
 			throw new RuntimeException("Error finding comment: " + e.getMessage(), e);
 		}
 	}
-
-
 
 	public List<Comment> getCommentsBySpot(Long spotId) {
 		try (Connection conn = this.dataSource.getConnection()) {

@@ -6,7 +6,7 @@ public class CommentRequest {
 	private Long commentId;
 	private String title;
 	private String description;
-	private Integer rating;
+	private int rating;
 
 	public Long getUserId() {
 		return this.userId;
@@ -28,7 +28,7 @@ public class CommentRequest {
 		return this.description;
 	}
 
-	public Integer getRating() {
+	public int getRating() {
 		return this.rating;
 	}
 
@@ -52,7 +52,10 @@ public class CommentRequest {
 		this.description = description;
 	}
 
-	public void setRating(Integer rating) {
+	public void setRating(int rating) {
+		if ((rating < 1) || (rating > 10)) {
+			throw new IllegalArgumentException("Rating must be between 1 and 10");
+		}
 		this.rating = rating;
 	}
 }
