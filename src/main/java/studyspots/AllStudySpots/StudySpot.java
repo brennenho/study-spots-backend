@@ -11,16 +11,15 @@ import jakarta.persistence.Table;
 @Table(name = "AllStudySpots")
 public class StudySpot {
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "spot_id")
 	private int spotId;
 	
 	@Column(name = "name")
 	private String name;
 	
-	@Column(name = "address")
-	private String address;
+	@Column(name = "location")
+	private String location;
 	
 	@Column(name = "image")
 	private String image;
@@ -31,63 +30,74 @@ public class StudySpot {
 	@Column(name = "longitude")
 	private float longitude;
 	
-	@Column(name = "rating")
-	private float rating;
+	@Column(name = "hours")
+	private String hours;
 	
+	@Column(name = "tags")
+	private String tags;
+
 	public int getSpotId() {
-		return this.spotId;
+		return spotId;
 	}
-	
-	public String getName() {
-		return this.name;
-	}
-	
-	public String getAddress() {
-		return address;
-	}
-	
-	public float getLongitude() {
-		return longitude;
-	}
-	
-	public float getLatitude() {
-		return latitude;
-	}
-	
-	public String getImage() {
-		return image;
-	}
-	
-	public float getRating() {
-		return rating;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
+
 	public void setSpotId(int spotId) {
 		this.spotId = spotId;
 	}
-	
-	public void setAddress(String address) {
-		this.address = address;
+
+	public String getName() {
+		return name;
 	}
-	
-	public void setLongitude(float longitude) {
-		this.longitude = longitude;
+
+	public void setName(String name) {
+		this.name = name;
 	}
-	
-	public void setLatitude(float latitude) {
-		this.latitude = latitude;
+
+	public String getLocation() {
+		return location;
 	}
-	
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
 	public void setImage(String image) {
 		this.image = image;
 	}
-	
-	public void setRating(float rating) {
-		this.rating = rating;
+
+	public float getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(float latitude) {
+		this.latitude = latitude;
+	}
+
+	public float getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(float longitude) {
+		this.longitude = longitude;
+	}
+
+	public String getHours() {
+		return hours;
+	}
+
+	public void setHours(String hours) {
+		this.hours = hours;
+	}
+
+	public String getTags() {
+		return tags;
+	}
+
+	public void setTags(String tags) {
+		this.tags = tags;
 	}
 
 }

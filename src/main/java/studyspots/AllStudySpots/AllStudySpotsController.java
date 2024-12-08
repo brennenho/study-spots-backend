@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/studyspots")  // Changed to match frontend URL
+@RequestMapping("/api/studyspots")
 public class AllStudySpotsController {
 
 	@Autowired
@@ -21,7 +21,7 @@ public class AllStudySpotsController {
 
 
 	@PostMapping("/add")
-	public ResponseEntity<?> addStudySpot(@RequestBody StudySpotRequest request) {  // Changed to accept JSON body
+	public ResponseEntity<?> addStudySpot(@RequestBody StudySpotRequest request) {
 		try {
 			if(this.allStudySpotsRepository.existsByName(request.getName())) {
 				return ResponseEntity.badRequest().body(new ErrorResponse("Study spot already exists."));
@@ -29,12 +29,12 @@ public class AllStudySpotsController {
 
 			StudySpot studySpot = new StudySpot();
 			studySpot.setName(request.getName());
-			studySpot.setAddress(request.getAddress());
+			studySpot.setLocation(request.getLocation());
 			studySpot.setImage(request.getImage());
-			// Set default values for required fields that aren't in the form
-			studySpot.setLatitude(0.0f);  // Default value
-			studySpot.setLongitude(0.0f); // Default value
-			studySpot.setRating(0.0f);    // Initial rating
+			studySpot.setLatitude(request.getLatitude());
+			studySpot.setLongitude(request.getLongitude());
+			studySpot.setHours(request.getHours());
+			studySpot.setTags(request.getTags());
 
 			StudySpot savedSpot = this.allStudySpotsRepository.save(studySpot);
 			return ResponseEntity.ok(savedSpot);
@@ -42,6 +42,7 @@ public class AllStudySpotsController {
 			return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
 		}
 	}
+	
 	@GetMapping("/get")
 	public @ResponseBody List<StudySpot> getStudySpotByName(@RequestParam String name) {
 		return this.allStudySpotsRepository.findByName(name);
@@ -53,39 +54,59 @@ public class AllStudySpotsController {
 	}
 
 
-	//@PutMapping("/update/")
-
-
-	//	@PutMapping("/edit")
-	//	public String
-
-
-
-
 }
 
 class StudySpotRequest {
 	private String name;
-	private String address;
 	private String location;
+	private float longitude;
+	private float latitude;
 	private String hours;
 	private String image;
-
-	// Getters and setters
-	public String getName() { return this.name; }
-	public void setName(String name) { this.name = name; }
-
-	public String getAddress() { return this.address; }
-	public void setAddress(String address) { this.address = address; }
-
-	public String getLocation() { return this.location; }
-	public void setLocation(String location) { this.location = location; }
-
-	public String getHours() { return this.hours; }
-	public void setHours(String hours) { this.hours = hours; }
-
-	public String getImage() { return this.image; }
-	public void setImage(String image) { this.image = image; }
+	private List<String> tags;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
+	}
+	public float getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(float longitude) {
+		this.longitude = longitude;
+	}
+	public float getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(float latitude) {
+		this.latitude = latitude;
+	}
+	public String getHours() {
+		return hours;
+	}
+	public void setHours(String hours) {
+		this.hours = hours;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
+	}
+	public String getTags() {
+		return String.join(",", tags);
+	}
+	public void setTags(List<String> tags) {
+		this.tags = tags;
+	}
 }
 
 // Error response class
