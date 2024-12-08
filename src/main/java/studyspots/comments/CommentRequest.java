@@ -7,6 +7,7 @@ public class CommentRequest {
 	private Long commentId;
 	private String title;
 	private String description;
+	private Integer rating;
 
 	public Long getUserId() {
 		return this.userId;
@@ -28,6 +29,10 @@ public class CommentRequest {
 		return this.description;
 	}
 
+	public Integer getRating() {
+		return this.rating;
+	}
+
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
@@ -46,5 +51,9 @@ public class CommentRequest {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public void setRating(Integer rating) {
+		this.rating = rating;
 	}
 }

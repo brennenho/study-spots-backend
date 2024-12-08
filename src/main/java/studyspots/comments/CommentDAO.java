@@ -63,8 +63,12 @@ public class CommentDAO {
 			if (!this.userExists(conn, request.getUserId())) {
 				throw new RuntimeException("User with ID " + request.getUserId() + " does not exist");
 			}
+			// Validate rating
+			if ((request.getRating() == null) || (request.getRating() < 1) || (request.getRating() > 10)) {
+				throw new RuntimeException("Rating must be between 1 and 10");
+			}
 
-			String sql = "INSERT INTO Comments (user_id, post_id, title, description, timestamp) VALUES (?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO Comments (user_id, post_id, title, description, timestamp, rating) VALUES (?, ?, ?, ?, ?, ?)";
 
 			try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 				pstmt.setLong(1, request.getUserId());
@@ -72,6 +76,7 @@ public class CommentDAO {
 				pstmt.setString(3, request.getTitle());
 				pstmt.setString(4, request.getDescription());
 				pstmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+				pstmt.setInt(6, request.getRating());
 
 				int affectedRows = pstmt.executeUpdate();
 
@@ -88,6 +93,7 @@ public class CommentDAO {
 						comment.setTitle(request.getTitle());
 						comment.setDescription(request.getDescription());
 						comment.setTimestamp(LocalDateTime.now());
+						comment.setRating(request.getRating());
 						return comment;
 					}
 					throw new SQLException("Creating comment failed, no ID obtained.");
@@ -110,6 +116,10 @@ public class CommentDAO {
 			if (!this.userExists(conn, request.getUserId())) {
 				throw new RuntimeException("User with ID " + request.getUserId() + " does not exist");
 			}
+			// Validate rating
+			if ((request.getRating() == null) || (request.getRating() < 1) || (request.getRating() > 10)) {
+				throw new RuntimeException("Rating must be between 1 and 10");
+			}
 
 			// Verify the comment belongs to this user and post
 			String verifySql = "SELECT 1 FROM Comments WHERE id = ? AND user_id = ? AND post_id = ?";
@@ -124,14 +134,15 @@ public class CommentDAO {
 				}
 			}
 
-			String sql = "UPDATE Comments SET title = ?, description = ?, timestamp = ? WHERE id = ? AND user_id = ? AND post_id = ?";
+			String sql = "UPDATE Comments SET title = ?, description = ?, timestamp = ?, rating = ? WHERE id = ? AND user_id = ? AND post_id = ?";
 			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 				pstmt.setString(1, request.getTitle());
 				pstmt.setString(2, request.getDescription());
 				pstmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-				pstmt.setLong(4, request.getCommentId());
-				pstmt.setLong(5, request.getUserId());
-				pstmt.setLong(6, request.getPostId());
+				pstmt.setInt(4, request.getRating());
+				pstmt.setLong(5, request.getCommentId());
+				pstmt.setLong(6, request.getUserId());
+				pstmt.setLong(7, request.getPostId());
 
 				int affectedRows = pstmt.executeUpdate();
 				if (affectedRows > 0) {
@@ -210,6 +221,8 @@ public class CommentDAO {
 			throw new RuntimeException("Error finding comment: " + e.getMessage(), e);
 		}
 	}
+
+
 
 	public List<Comment> getCommentsBySpot(Long spotId) {
 		try (Connection conn = this.dataSource.getConnection()) {

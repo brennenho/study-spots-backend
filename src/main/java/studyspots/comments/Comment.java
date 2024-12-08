@@ -10,6 +10,7 @@ public class Comment {
 	private String title;
 	private String description;
 	private LocalDateTime timestamp;
+	private Integer rating;
 
 	public Integer getId() {
 		return this.id;
@@ -35,6 +36,10 @@ public class Comment {
 		return this.timestamp;
 	}
 
+	public Integer getRating() {
+		return this.rating;
+	}
+
 	public void setId(Integer id) {
 		this.id = id;
 	}
@@ -57,5 +62,12 @@ public class Comment {
 
 	public void setTimestamp(LocalDateTime timestamp) {
 		this.timestamp = timestamp;
+	}
+
+	public void setRating(Integer rating) {
+		if ((rating != null) && ((rating < 1) || (rating > 10))) {
+			throw new IllegalArgumentException("Rating must be between 1 and 10");
+		}
+		this.rating = rating;
 	}
 }

@@ -80,6 +80,8 @@ CREATE TABLE Comments (
     title VARCHAR(255),
     description VARCHAR(5000),
     timestamp DATETIME NOT NULL,
+    rating INT NOT NULL,
+    CONSTRAINT rating_range CHECK (rating >= 1 AND rating <= 10),
     FOREIGN KEY (user_id) REFERENCES Users(user_id),
     FOREIGN KEY (post_id) REFERENCES AllStudySpots(spot_id),
     INDEX idx_user_post_comment (user_id, post_id, id)
