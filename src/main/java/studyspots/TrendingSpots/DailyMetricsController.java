@@ -3,6 +3,7 @@ package studyspots.TrendingSpots;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.hibernate.annotations.Comments;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import studyspots.AllStudySpots.AllStudySpotsRepository;
 import studyspots.AllStudySpots.StudySpot;
+import studyspots.comments.Comment;
 import studyspots.comments.CommentDAO;
 
 @Controller
@@ -30,14 +32,20 @@ public class DailyMetricsController {
 	@Autowired
 	private CommentDAO commentDao;
 	
-	@PostMapping(path="/process")
+	@PostMapping(path="/processData")
 	public @ResponseBody void processAll() {
 		List<StudySpot> allSpots = allStudySpotsRepository.findAll();
 		for (int i = 0; i < allSpots.size(); i++) {
-			int spotId = allSpots.get(i).getSpotId();
-			float rating = allSpots.get(i).getRating();
-			int visitCount = commentDao.getCommentsBySpot((long) spotId).size();
+			List<Comment> allComments = commentDao.getCommentsBySpot((long) allSpots.get(i).getSpotId());
 			
+			float totalRating = 0;
+			for (int j = 0; j < allComments.size(); j++) {
+				totalRating += allComments.get(j).getRating();
+			}
+			
+			int spotId = allSpots.get(i).getSpotId();
+			float rating = totalRating;
+			int visitCount = commentDao.getCommentsBySpot((long) spotId).size();
 
 			addNewDailyMetric(spotId, visitCount, rating);
 		}
