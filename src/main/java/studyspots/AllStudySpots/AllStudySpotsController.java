@@ -13,15 +13,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/studyspots")  // Changed to match frontend URL
+@RequestMapping("/api/studyspots")
 public class AllStudySpotsController {
 
 	@Autowired
 	private AllStudySpotsRepository allStudySpotsRepository;
 
-
 	@PostMapping("/add")
-	public ResponseEntity<?> addStudySpot(@RequestBody StudySpotRequest request) {  // Changed to accept JSON body
+	public ResponseEntity<?> addStudySpot(@RequestBody StudySpotRequest request) {
 		try {
 			if(this.allStudySpotsRepository.existsByName(request.getName())) {
 				return ResponseEntity.badRequest().body(new ErrorResponse("Study spot already exists."));
@@ -31,10 +30,9 @@ public class AllStudySpotsController {
 			studySpot.setName(request.getName());
 			studySpot.setAddress(request.getAddress());
 			studySpot.setImage(request.getImage());
-			// Set default values for required fields that aren't in the form
 			studySpot.setLatitude(0.0f);  // Default value
 			studySpot.setLongitude(0.0f); // Default value
-			studySpot.setRating(0.0f);    // Initial rating
+			studySpot.setRating(1.0f);    // Initial rating
 
 			StudySpot savedSpot = this.allStudySpotsRepository.save(studySpot);
 			return ResponseEntity.ok(savedSpot);
@@ -52,16 +50,10 @@ public class AllStudySpotsController {
 		return this.allStudySpotsRepository.findAll();
 	}
 
+	// @PutMapping("/update/")
 
-	//@PutMapping("/update/")
-
-
-	//	@PutMapping("/edit")
-	//	public String
-
-
-
-
+	// @PutMapping("/edit")
+	// public String
 }
 
 class StudySpotRequest {
@@ -71,7 +63,6 @@ class StudySpotRequest {
 	private String hours;
 	private String image;
 
-	// Getters and setters
 	public String getName() { return this.name; }
 	public void setName(String name) { this.name = name; }
 

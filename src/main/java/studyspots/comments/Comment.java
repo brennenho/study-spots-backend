@@ -1,4 +1,3 @@
-// Comment.java
 package studyspots.comments;
 
 import java.time.LocalDateTime;
