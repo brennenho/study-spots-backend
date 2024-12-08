@@ -1,65 +1,101 @@
 package studyspots.AllStudySpots;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.stereotype.Controller;
 
 @RestController
-@RequestMapping("/AllStudySpots")
+@RequestMapping("/api/studyspots")  // Changed to match frontend URL
 public class AllStudySpotsController {
-	
+
 	@Autowired
 	private AllStudySpotsRepository allStudySpotsRepository;
-	
+
+
 	@PostMapping("/add")
-	public @ResponseBody String addStudySpot(@RequestParam String name, @RequestParam String address, @RequestParam String image,
-			@RequestParam float latitude, @RequestParam float longitude, @RequestParam float rating) {
-		if(this.allStudySpotsRepository.existsByName(name)) {
-			return "Study spot already exists.";
+	public ResponseEntity<?> addStudySpot(@RequestBody StudySpotRequest request) {  // Changed to accept JSON body
+		try {
+			if(this.allStudySpotsRepository.existsByName(request.getName())) {
+				return ResponseEntity.badRequest().body(new ErrorResponse("Study spot already exists."));
+			}
+
+			StudySpot studySpot = new StudySpot();
+			studySpot.setName(request.getName());
+			studySpot.setAddress(request.getAddress());
+			studySpot.setImage(request.getImage());
+			// Set default values for required fields that aren't in the form
+			studySpot.setLatitude(0.0f);  // Default value
+			studySpot.setLongitude(0.0f); // Default value
+			studySpot.setRating(0.0f);    // Initial rating
+
+			StudySpot savedSpot = this.allStudySpotsRepository.save(studySpot);
+			return ResponseEntity.ok(savedSpot);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
 		}
-		StudySpot studySpot = new StudySpot();
-		studySpot.setAddress(address);
-		studySpot.setName(name);
-		studySpot.setImage(image);
-		studySpot.setLatitude(latitude);
-		studySpot.setLongitude(longitude);
-		studySpot.setRating(rating);
-		this.allStudySpotsRepository.save(studySpot);
-		return "Study spot added";
-		
-		
 	}
-	
 	@GetMapping("/get")
 	public @ResponseBody List<StudySpot> getStudySpotByName(@RequestParam String name) {
 		return this.allStudySpotsRepository.findByName(name);
 	}
-	
+
 	@GetMapping("/getall")
 	public @ResponseBody List<StudySpot> getAll() {
 		return this.allStudySpotsRepository.findAll();
 	}
 
-	
-	//@PutMapping("/update/")
-	
-	
-//	@PutMapping("/edit")
-//	public String 
-	
-	
-	
 
+	//@PutMapping("/update/")
+
+
+	//	@PutMapping("/edit")
+	//	public String
+
+
+
+
+}
+
+class StudySpotRequest {
+	private String name;
+	private String address;
+	private String location;
+	private String hours;
+	private String image;
+
+	// Getters and setters
+	public String getName() { return this.name; }
+	public void setName(String name) { this.name = name; }
+
+	public String getAddress() { return this.address; }
+	public void setAddress(String address) { this.address = address; }
+
+	public String getLocation() { return this.location; }
+	public void setLocation(String location) { this.location = location; }
+
+	public String getHours() { return this.hours; }
+	public void setHours(String hours) { this.hours = hours; }
+
+	public String getImage() { return this.image; }
+	public void setImage(String image) { this.image = image; }
+}
+
+// Error response class
+class ErrorResponse {
+	private String message;
+
+	public ErrorResponse(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() { return this.message; }
+	public void setMessage(String message) { this.message = message; }
 }

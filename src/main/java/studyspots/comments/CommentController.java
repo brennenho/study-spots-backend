@@ -1,8 +1,12 @@
 package studyspots.comments;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,6 +57,16 @@ public class CommentController {
 		} catch (RuntimeException e) {
 			return ResponseEntity.badRequest()
 					.body(new ErrorResponse(e.getMessage()));
+		}
+	}
+
+	@GetMapping("/spot/{spotId}")
+	public ResponseEntity<List<Comment>> getCommentsBySpot(@PathVariable Long spotId) {
+		try {
+			List<Comment> comments = this.commentDAO.getCommentsBySpot(spotId);
+			return ResponseEntity.ok(comments);
+		} catch (RuntimeException e) {
+			throw new RuntimeException("Error fetching comments: " + e.getMessage(), e);
 		}
 	}
 }
