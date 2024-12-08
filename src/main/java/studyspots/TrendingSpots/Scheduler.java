@@ -11,7 +11,7 @@ public class Scheduler {
 	private DailyMetricsController dailyMetricsController;
 
 	@Scheduled(cron = "0 0 0 * * *")
-	public void runDailyMetrics() {
+	public void retrieveDailyInfo() {
 		dailyMetricsController.processAll();
 		
 	}

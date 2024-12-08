@@ -30,7 +30,7 @@ public class DailyMetricsController {
 	@Autowired
 	private CommentDAO commentDao;
 	
-	@PostMapping(path="/processDailyMetrics")
+	@PostMapping(path="/process")
 	public @ResponseBody void processAll() {
 		List<StudySpot> allSpots = allStudySpotsRepository.findAll();
 		for (int i = 0; i < allSpots.size(); i++) {
