@@ -239,6 +239,7 @@ public class CommentDAO {
 						comment.setTitle(rs.getString("title"));
 						comment.setDescription(rs.getString("description"));
 						comment.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
+						comment.setRating(rs.getInt("rating"));
 						comments.add(comment);
 					}
 				}
