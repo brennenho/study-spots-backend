@@ -57,6 +57,17 @@ public class AllStudySpotsController {
 	public @ResponseBody List<StudySpot> getAll() {
 		return this.allStudySpotsRepository.findAll();
 	}
+	
+	@GetMapping("/getnamebyid/{id}")
+	public @ResponseBody String getNameById(@PathVariable int id) {
+		List<StudySpot> getAllList = getAll();
+		for (int i = 0; i < getAllList.size(); i++) {
+			if (getAllList.get(i).getSpotId() == id) {
+				return getAllList.get(i).getName();
+			}
+		}
+		return "Error getting Name";
+	}
 }
 
 class StudySpotRequest {
