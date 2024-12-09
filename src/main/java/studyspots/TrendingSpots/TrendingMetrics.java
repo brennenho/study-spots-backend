@@ -13,7 +13,7 @@ public class TrendingMetrics{
 
 	@Id
 
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "metric_id")
 	private int dailyMetricId;
 

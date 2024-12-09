@@ -32,6 +32,10 @@ public class TrendingMetricsController {
 		List<TrendingMetrics> trendingMetricsList = new ArrayList<TrendingMetrics>();
 		List<Integer> spotIdsList = dailyMetricsRepository.findDistinctSpotId();
 		
+		 if (spotIdsList == null || spotIdsList.isEmpty()) {
+	            return new ArrayList<>();
+	     }
+		
 		for (int i = 0; i < spotIdsList.size(); i++) {
 			TrendingMetrics metrics = new TrendingMetrics();
 			
