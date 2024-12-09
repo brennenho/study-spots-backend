@@ -29,7 +29,7 @@ public class TrendingMetrics{
 	@Column(name = "average_rating")
 	private double averageRating;
 
-	public double getAverageRatings() {
+	public double getAverageRating() {
 		return averageRating;
 	}
 
