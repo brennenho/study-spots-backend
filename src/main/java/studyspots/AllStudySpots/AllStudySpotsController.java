@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import studyspots.users.User;
+import studyspots.users.UserRepository;
+
 @RestController
 @RequestMapping("/api/studyspots")
 public class AllStudySpotsController {
@@ -20,16 +23,21 @@ public class AllStudySpotsController {
 	@Autowired
 	private AllStudySpotsRepository allStudySpotsRepository;
 
+	@Autowired
+	private UserRepository userRepository;
+
 	@PostMapping("/add")
 	public ResponseEntity<?> addStudySpot(@RequestBody StudySpotRequest request) {
 		try {
-			System.out.println("Received request: " + request.getName());
-			System.out.println("Tags: " + request.getTags());
-
 			request.validate();
 			if(this.allStudySpotsRepository.existsByName(request.getName())) {
-				System.out.println("Study spot already exists: " + request.getName());
 				return ResponseEntity.badRequest().body(new ErrorResponse("Study spot already exists."));
+			}
+
+			// Find user by email
+			User user = this.userRepository.findByEmail(request.getEmail());
+			if (user == null) {
+				return ResponseEntity.badRequest().body(new ErrorResponse("Invalid user session"));
 			}
 
 			StudySpot studySpot = new StudySpot();
@@ -40,15 +48,11 @@ public class AllStudySpotsController {
 			studySpot.setLongitude(request.getLongitude());
 			studySpot.setHours(request.getHours());
 			studySpot.setTags(String.join(",", request.getTags()));
+			studySpot.setUserId(user.getUserId());
 
 			StudySpot savedSpot = this.allStudySpotsRepository.save(studySpot);
 			return ResponseEntity.ok(savedSpot);
-		} catch (IllegalArgumentException e) {
-			System.out.println("Validation error: " + e.getMessage());
-			return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
 		} catch (Exception e) {
-			System.out.println("General error: " + e.getMessage());
-			e.printStackTrace();
 			return ResponseEntity.badRequest()
 					.body(new ErrorResponse("Error adding study spot: " + e.getMessage()));
 		}
@@ -89,6 +93,7 @@ class StudySpotRequest {
 	private String hours;
 	private String image;
 	private List<String> tags;
+	private String email;
 
 	public String getName() {
 		return this.name;
@@ -146,6 +151,14 @@ class StudySpotRequest {
 		this.tags = tags;
 	}
 
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
 	public void validate() throws IllegalArgumentException {
 		if ((this.name == null) || this.name.trim().isEmpty()) {
 			throw new IllegalArgumentException("Name cannot be empty");
@@ -158,6 +171,9 @@ class StudySpotRequest {
 		}
 		if ((this.tags == null) || this.tags.isEmpty()) {
 			throw new IllegalArgumentException("At least one tag must be selected");
+		}
+		if ((this.email == null) || this.email.trim().isEmpty()) {
+			throw new IllegalArgumentException("User email is required");
 		}
 	}
 }

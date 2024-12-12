@@ -2,16 +2,17 @@ DROP DATABASE IF EXISTS StudySpots;
 CREATE DATABASE StudySpots;
 USE StudySpots;
 
-CREATE TABLE AllStudySpots(
-	spot_id int NOT NULL AUTO_INCREMENT,
-	name varchar(255),
-	location varchar(255),
-	image varchar(255),
-	latitude decimal(10, 8),
-	longitude decimal(11, 8),
-	hours varchar(255),
-    tags varchar(255),
-	PRIMARY KEY (spot_id)
+CREATE TABLE AllStudySpots (
+    spot_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    image VARCHAR(255),
+    latitude FLOAT,
+    longitude FLOAT,
+    hours VARCHAR(255),
+    tags VARCHAR(255),
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
 CREATE TABLE Users (

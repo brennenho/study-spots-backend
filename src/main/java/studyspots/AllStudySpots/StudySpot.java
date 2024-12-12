@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+
 @Entity
 @Table(name = "AllStudySpots")
 public class StudySpot {
@@ -14,6 +15,9 @@ public class StudySpot {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "spot_id")
 	private int spotId;
+
+	@Column(name = "user_id")
+	private int userId;
 
 	@Column(name = "name")
 	private String name;
@@ -29,15 +33,16 @@ public class StudySpot {
 
 	@Column(name = "longitude")
 	private float longitude;
-	
+
 	@Column(name = "hours")
 	private String hours;
 
 	@Column(name = "tags")
 	private String tags;
 
+
 	public int getSpotId() {
-		return spotId;
+		return this.spotId;
 	}
 
 	public void setSpotId(int spotId) {
@@ -45,7 +50,7 @@ public class StudySpot {
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	public void setName(String name) {
@@ -53,7 +58,7 @@ public class StudySpot {
 	}
 
 	public String getLocation() {
-		return location;
+		return this.location;
 	}
 
 	public void setLocation(String location) {
@@ -61,7 +66,7 @@ public class StudySpot {
 	}
 
 	public String getImage() {
-		return image;
+		return this.image;
 	}
 
 	public void setImage(String image) {
@@ -69,7 +74,7 @@ public class StudySpot {
 	}
 
 	public float getLatitude() {
-		return latitude;
+		return this.latitude;
 	}
 
 	public void setLatitude(float latitude) {
@@ -77,7 +82,7 @@ public class StudySpot {
 	}
 
 	public float getLongitude() {
-		return longitude;
+		return this.longitude;
 	}
 
 	public void setLongitude(float longitude) {
@@ -85,7 +90,15 @@ public class StudySpot {
 	}
 
 	public String getHours() {
-		return hours;
+		return this.hours;
+	}
+
+	public int getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 	public void setHours(String hours) {
@@ -93,11 +106,10 @@ public class StudySpot {
 	}
 
 	public String getTags() {
-		return tags;
+		return this.tags;
 	}
 
 	public void setTags(String tags) {
 		this.tags = tags;
 	}
-
 }

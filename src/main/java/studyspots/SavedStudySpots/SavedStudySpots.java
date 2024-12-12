@@ -12,11 +12,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "SavedSpots")
 public class SavedStudySpots {
-
 	@Id
-
 	@GeneratedValue(strategy = GenerationType.AUTO)
-
 	@Column(name = "save_id")
 	private int saveId;
 
