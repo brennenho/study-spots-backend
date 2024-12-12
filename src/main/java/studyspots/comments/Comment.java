@@ -70,5 +70,3 @@ public class Comment {
 		this.rating = rating;
 	}
 }
-
-

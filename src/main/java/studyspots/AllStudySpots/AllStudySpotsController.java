@@ -23,7 +23,12 @@ public class AllStudySpotsController {
 	@PostMapping("/add")
 	public ResponseEntity<?> addStudySpot(@RequestBody StudySpotRequest request) {
 		try {
+			System.out.println("Received request: " + request.getName());
+			System.out.println("Tags: " + request.getTags());
+
+			request.validate();
 			if(this.allStudySpotsRepository.existsByName(request.getName())) {
+				System.out.println("Study spot already exists: " + request.getName());
 				return ResponseEntity.badRequest().body(new ErrorResponse("Study spot already exists."));
 			}
 
@@ -34,20 +39,26 @@ public class AllStudySpotsController {
 			studySpot.setLatitude(request.getLatitude());
 			studySpot.setLongitude(request.getLongitude());
 			studySpot.setHours(request.getHours());
-			studySpot.setTags(request.getTags());
+			studySpot.setTags(String.join(",", request.getTags()));
 
 			StudySpot savedSpot = this.allStudySpotsRepository.save(studySpot);
 			return ResponseEntity.ok(savedSpot);
-		} catch (Exception e) {
+		} catch (IllegalArgumentException e) {
+			System.out.println("Validation error: " + e.getMessage());
 			return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+		} catch (Exception e) {
+			System.out.println("General error: " + e.getMessage());
+			e.printStackTrace();
+			return ResponseEntity.badRequest()
+					.body(new ErrorResponse("Error adding study spot: " + e.getMessage()));
 		}
 	}
-	
+
 	@GetMapping("/get")
 	public @ResponseBody List<StudySpot> getStudySpotByName(@RequestParam String name) {
 		return this.allStudySpotsRepository.findByName(name);
 	}
-	
+
 	@GetMapping("/getbyid/{id}")
 	public @ResponseBody StudySpot getStudySpotById(@PathVariable int id) {
 		return this.allStudySpotsRepository.findById(id);
@@ -57,13 +68,13 @@ public class AllStudySpotsController {
 	public @ResponseBody List<StudySpot> getAll() {
 		return this.allStudySpotsRepository.findAll();
 	}
-	
+
 	@GetMapping("/getnamebyid/{id}")
 	public @ResponseBody String getNameById(@PathVariable int id) {
-		List<StudySpot> getAllList = getAll();
-		for (int i = 0; i < getAllList.size(); i++) {
-			if (getAllList.get(i).getSpotId() == id) {
-				return getAllList.get(i).getName();
+		List<StudySpot> getAllList = this.getAll();
+		for (StudySpot element : getAllList) {
+			if (element.getSpotId() == id) {
+				return element.getName();
 			}
 		}
 		return "Error getting Name";
@@ -80,50 +91,77 @@ class StudySpotRequest {
 	private List<String> tags;
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public String getLocation() {
-		return location;
+		return this.location;
 	}
+
 	public void setLocation(String location) {
 		this.location = location;
 	}
+
 	public float getLongitude() {
-		return longitude;
+		return this.longitude;
 	}
+
 	public void setLongitude(float longitude) {
 		this.longitude = longitude;
 	}
+
 	public float getLatitude() {
-		return latitude;
+		return this.latitude;
 	}
+
 	public void setLatitude(float latitude) {
 		this.latitude = latitude;
 	}
+
 	public String getHours() {
-		return hours;
+		return this.hours;
 	}
+
 	public void setHours(String hours) {
 		this.hours = hours;
 	}
+
 	public String getImage() {
-		return image;
+		return this.image;
 	}
+
 	public void setImage(String image) {
 		this.image = image;
 	}
-	public String getTags() {
-		return String.join(",", tags);
+
+	public List<String> getTags() {
+		return this.tags;
 	}
+
 	public void setTags(List<String> tags) {
 		this.tags = tags;
 	}
+
+	public void validate() throws IllegalArgumentException {
+		if ((this.name == null) || this.name.trim().isEmpty()) {
+			throw new IllegalArgumentException("Name cannot be empty");
+		}
+		if ((this.location == null) || this.location.trim().isEmpty()) {
+			throw new IllegalArgumentException("Location cannot be empty");
+		}
+		if ((this.hours == null) || this.hours.trim().isEmpty()) {
+			throw new IllegalArgumentException("Hours cannot be empty");
+		}
+		if ((this.tags == null) || this.tags.isEmpty()) {
+			throw new IllegalArgumentException("At least one tag must be selected");
+		}
+	}
 }
 
-// Error response class
 class ErrorResponse {
 	private String message;
 
